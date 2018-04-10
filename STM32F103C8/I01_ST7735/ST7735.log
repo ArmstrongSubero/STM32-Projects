@@ -1,0 +1,13 @@
+0	1	mikroCARM.exe -MSF -DBG -pSTM32F103C8 -BIN -LHF -C -DL -SSA -O11111115 -fo72 -N"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I01_ST7735\ST7735.mcpar" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Uses\ST M3\" -SP"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I01_ST7735\" -IP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Uses\ST M3\" -IP"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I01_ST7735\" "ST7735.c" "Demo.c" "__Lib_Math.emcl" "__Lib_MathDouble.emcl" "__Lib_Delays.emcl" "__Lib_System_101_102_103.emcl" "__Lib_GPIO_32F10x_Defs.emcl" "__Lib_GPIO_32F10x.emcl" "__Lib_CString.emcl" "__Lib_Conversions.emcl" "__Lib_SPI_123.emcl"	 
+diagnostics: 0	122	Compilation Started	st7735.h
+diagnostics: 645	123	Compiled Successfully	ST7735.c
+diagnostics: 0	122	Compilation Started	st7735.h
+diagnostics: 81	123	Compiled Successfully	Demo.c
+diagnostics: 0	127	All files Compiled in 141 ms	 
+hint: 0	1144	Used RX: 16 (100%)   Free RX: 0 (0%)	Used RX: 16 (100%)   Free RX: 0 (0%)
+hint: 0	1144	Static RAM (bytes): 22   Dynamic RAM (bytes): 20453	Static RAM (bytes): 22   Dynamic RAM (bytes): 20453
+hint: 0	1144	Used ROM (bytes): 5860 (9%)  Free ROM (bytes): 59676 (91%)	Used ROM (bytes): 5860 (9%)  Free ROM (bytes): 59676 (91%)
+diagnostics: 0	125	Project Linked Successfully	ST7735.mcpar
+diagnostics: 0	128	Linked in 187 ms	 
+diagnostics: 0	129	Project 'ST7735.mcpar' completed: 422 ms	 
+diagnostics: 0	103	Finished successfully: 10 Apr 2018, 00:42:59	ST7735.mcpar
