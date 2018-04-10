@@ -1,0 +1,140 @@
+Version:0.9
+StartHTML:0000000105
+EndHTML:0000013851
+StartFragment:0000001550
+EndFragment:0000013835
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>C:\Users\armst\Desktop\STM32F103C8T6\MikroC\10_USB\USBdsc.c</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="generator" content="SynEdit HTML exporter" />
+<style type="text/css">
+<!--
+body { color: #000000; background-color: #FFFFFF; }
+body { font-family: Courier New; font-size: 14pt; }
+.cpp1-activecomment { color: #3399FF; font-style: italic; text-decoration: underline; }
+.cpp1-assembler { color: #FF0000; }
+.cpp1-binary { color: #800000; }
+.cpp1-character { color: #808000; }
+.cpp1-comment { color: #008000; font-style: italic; }
+.cpp1-float { color: #800000; }
+.cpp1-hexadecimal { color: #008000; }
+.cpp1-identifier { color: #000000; }
+.cpp1-illegalchar { color: #FF0000; }
+.cpp1-imagelink { color: #800080; font-style: italic; text-decoration: underline; }
+.cpp1-number { color: #008000; }
+.cpp1-octal { color: #0000FF; }
+.cpp1-preprocessor { color: #8000FF; font-style: italic; }
+.cpp1-reservedword { color: #000000; font-weight: bold; }
+.cpp1-space { color: #F0F0F0; }
+.cpp1-string { color: #0000FF; }
+.cpp1-symbol { color: #000000; }
+.cpp1-weblink { color: #3399FF; font-style: italic; text-decoration: underline; }
+-->
+</style>
+</head>
+<body>
+<!--StartFragment--><pre><code><span class="cpp1-comment">/*
+&nbsp;*&nbsp;File:&nbsp;Main.c
+&nbsp;*&nbsp;Author:&nbsp;Armstrong&nbsp;Subero&nbsp;(modified&nbsp;by&nbsp;code&nbsp;on&nbsp;forums&nbsp;provided&nbsp;by&nbsp;'eva')
+&nbsp;*&nbsp;uC:&nbsp;&nbsp;STM32F103C8T6&nbsp;HS&nbsp;w/PLL&nbsp;OSC&nbsp;@&nbsp;72&nbsp;MHz,&nbsp;3.3v&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(USB&nbsp;48Mhz)
+&nbsp;*&nbsp;Program:&nbsp;USB&nbsp;HID
+&nbsp;*&nbsp;Compiler:&nbsp;mikroC&nbsp;Pro&nbsp;ARM&nbsp;(v6.0.0.0)
+&nbsp;*&nbsp;Program&nbsp;Version:&nbsp;1.0
+&nbsp;*
+&nbsp;*&nbsp;Program&nbsp;Description:&nbsp;This&nbsp;Program&nbsp;Allows&nbsp;the&nbsp;STM32F103C8T6&nbsp;to&nbsp;communicate
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;via&nbsp;USB&nbsp;using&nbsp;HID&nbsp;device&nbsp;class.&nbsp;When&nbsp;the&nbsp;character&nbsp;'b'
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is&nbsp;recieved&nbsp;and&nbsp;LED&nbsp;connected&nbsp;to&nbsp;the&nbsp;uC&nbsp;turns&nbsp;on&nbsp;and
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when&nbsp;the&nbsp;character&nbsp;'t'&nbsp;is&nbsp;recieved&nbsp;the&nbsp;LED&nbsp;turns&nbsp;off.
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When&nbsp;either&nbsp;character&nbsp;is&nbsp;recieved,&nbsp;a&nbsp;number&nbsp;is&nbsp;incremented
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;sent&nbsp;to&nbsp;the&nbsp;host.
+&nbsp;*
+&nbsp;*&nbsp;Hardware&nbsp;Description:&nbsp;A&nbsp;STM32F103C8T6&nbsp;is&nbsp;connected&nbsp;via&nbsp;USB&nbsp;as&nbsp;follows:
+&nbsp;*
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vss&nbsp;--&gt;&nbsp;Vss
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vdd&nbsp;--&gt;&nbsp;5v
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USB-&nbsp;--&gt;&nbsp;PA11
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USB+&nbsp;--&gt;&nbsp;PA12
+&nbsp;*
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Additionally&nbsp;an&nbsp;LED&nbsp;is&nbsp;connected&nbsp;via&nbsp;a&nbsp;1k&nbsp;resistor&nbsp;to&nbsp;PA9
+&nbsp;*
+&nbsp;*&nbsp;Created&nbsp;December&nbsp;11th,&nbsp;2017,&nbsp;11:38&nbsp;PM
+&nbsp;*/
+
+/*******************************************************************************
+*Includes,&nbsp;defines&nbsp;and&nbsp;Function&nbsp;Prototypes
+*******************************************************************************/
+
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">readbuff[</span><span class="cpp1-number">64</span><span class="cpp1-symbol">];
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">writebuff[</span><span class="cpp1-number">64</span><span class="cpp1-symbol">];
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">count</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+
+</span><span class="cpp1-comment">/*******************************************************************************
+*&nbsp;Function:&nbsp;void&nbsp;USB0Interrupt()&nbsp;iv&nbsp;IVT_INT_USB_LP_CAN_RX0
+*
+*&nbsp;Returns:&nbsp;Nothing
+*
+*&nbsp;Description:&nbsp;Services&nbsp;USB&nbsp;interrupt
+*******************************************************************************/
+
+//&nbsp;USB&nbsp;Interrupt
+</span><span class="cpp1-reservedword">void</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">USB0Interrupt()</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-reservedword">iv</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">IVT_INT_USB_LP_CAN_RX0
+{
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Service&nbsp;USB
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">USB_Interrupt_Proc();
+}
+
+</span><span class="cpp1-comment">/*******************************************************************************
+&nbsp;*&nbsp;Function:&nbsp;Main
+&nbsp;*
+&nbsp;*&nbsp;Returns:&nbsp;Nothing
+&nbsp;*
+&nbsp;*&nbsp;Description:&nbsp;Program&nbsp;entry&nbsp;point
+&nbsp;******************************************************************************/
+</span><span class="cpp1-reservedword">void</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">main(</span><span class="cpp1-reservedword">void</span><span class="cpp1-symbol">){
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-reservedword">unsigned</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">n_byte;
+
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-comment">//set&nbsp;A9&nbsp;as&nbsp;output&nbsp;pin
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">GPIO_Digital_Output(&amp;GPIOA_BASE,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">_GPIO_PINMASK_9);
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">GPIOA_ODR=</span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;
+&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;enable&nbsp;USB&nbsp;communication
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">HID_Enable(&amp;readbuff,&amp;writebuff);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-reservedword">while</span><span class="cpp1-symbol">(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;recieve&nbsp;message&nbsp;from&nbsp;host&nbsp;and&nbsp;store&nbsp;in&nbsp;buffer
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">n_byte=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">HID_Read();
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">if</span><span class="cpp1-symbol">(n_byte</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">!=</span><span class="cpp1-number">0</span><span class="cpp1-symbol">)</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;packet&nbsp;received&nbsp;!
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;if&nbsp;b&nbsp;(0x62h)&nbsp;read&nbsp;turn&nbsp;LED&nbsp;on
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">if</span><span class="cpp1-symbol">(readbuff[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]==</span><span class="cpp1-character">'b'</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GPIOA_ODR.B9=</span><span class="cpp1-number">1</span><span class="cpp1-symbol">;</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//&nbsp;turn&nbsp;on&nbsp;led
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;if&nbsp;t&nbsp;(0x74h)&nbsp;read&nbsp;turn&nbsp;off&nbsp;led
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">if</span><span class="cpp1-symbol">(readbuff[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]==</span><span class="cpp1-character">'t'</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GPIOA_ODR.B9=</span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//&nbsp;turn&nbsp;off&nbsp;led
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;once&nbsp;data&nbsp;read&nbsp;send&nbsp;count&nbsp;via&nbsp;USB
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">writebuff[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]=count;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">HID_Write(&amp;writebuff,</span><span class="cpp1-number">64</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;increent&nbsp;count
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">count++;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;if&nbsp;count&nbsp;is&nbsp;255,&nbsp;make&nbsp;count&nbsp;0
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">if</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(count</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">==</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">255</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">count</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+}
+</span></code></pre><!--EndFragment--></body>
+</html>

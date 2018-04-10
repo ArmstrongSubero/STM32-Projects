@@ -1,0 +1,219 @@
+Version:0.9
+StartHTML:0000000105
+EndHTML:0000031671
+StartFragment:0000001499
+EndFragment:0000031655
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>mikroIDE</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="generator" content="SynEdit HTML exporter" />
+<style type="text/css">
+<!--
+body { color: #000000; background-color: #FFFFFF; }
+body { font-family: Courier New; font-size: 14pt; }
+.cpp1-activecomment { color: #3399FF; font-style: italic; text-decoration: underline; }
+.cpp1-assembler { color: #FF0000; }
+.cpp1-binary { color: #800000; }
+.cpp1-character { color: #808000; }
+.cpp1-comment { color: #008000; font-style: italic; }
+.cpp1-float { color: #800000; }
+.cpp1-hexadecimal { color: #008000; }
+.cpp1-identifier { color: #000000; }
+.cpp1-illegalchar { color: #FF0000; }
+.cpp1-imagelink { color: #800080; font-style: italic; text-decoration: underline; }
+.cpp1-number { color: #008000; }
+.cpp1-octal { color: #0000FF; }
+.cpp1-preprocessor { color: #8000FF; font-style: italic; }
+.cpp1-reservedword { color: #000000; font-weight: bold; }
+.cpp1-space { color: #F0F0F0; }
+.cpp1-string { color: #0000FF; }
+.cpp1-symbol { color: #000000; }
+.cpp1-weblink { color: #3399FF; font-style: italic; text-decoration: underline; }
+-->
+</style>
+</head>
+<body>
+<!--StartFragment--><pre><code><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;import&nbsp;comm&nbsp;tools
+</span><span class="cpp1-identifier">from</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">time</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">import</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">sleep
+from</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">msvcrt</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">import</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">kbhit
+import</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">pywinusb.hid</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">as</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">hid
+from</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">pywinusb</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">import</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">*
+import</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">sys
+
+</span><span class="cpp1-preprocessor">#import&nbsp;gui
+</span><span class="cpp1-identifier">from</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">tkinter</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">import</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">*
+from</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">tkinter</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">import</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">messagebox
+
+</span><span class="cpp1-preprocessor">#global&nbsp;variable
+</span><span class="cpp1-identifier">count</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">0
+
+</span><span class="cpp1-preprocessor">#-------------------------------------------------------------------------------
+#&nbsp;Function&nbsp;reads&nbsp;data&nbsp;from&nbsp;list&nbsp;and&nbsp;Prints&nbsp;second&nbsp;element
+#-------------------------------------------------------------------------------
+</span><span class="cpp1-identifier">def</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">readData(</span><span class="cpp1-reservedword">data</span><span class="cpp1-symbol">):
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;copy&nbsp;of&nbsp;global&nbsp;variable&nbsp;count&nbsp;to&nbsp;modify
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">global</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">count
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;read&nbsp;data&nbsp;and&nbsp;insert&nbsp;into&nbsp;textbox1
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">str1</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">str(</span><span class="cpp1-reservedword">data</span><span class="cpp1-symbol">[</span><span class="cpp1-number">1</span><span class="cpp1-symbol">])</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">+</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-character">'\n'
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">t1.insert(END,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">str1)
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;increment&nbsp;count
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">count</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">count</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">+</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">1
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;if&nbsp;10&nbsp;reached,&nbsp;clear&nbsp;textbox&nbsp;and&nbsp;reset&nbsp;count
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">if</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(count</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">&gt;</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">10</span><span class="cpp1-symbol">):
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;clear&nbsp;textbox&nbsp;1
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">t1.</span><span class="cpp1-reservedword">delete</span><span class="cpp1-symbol">(</span><span class="cpp1-string">&quot;1.0&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">END)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">count</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">0
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">None
+
+</span><span class="cpp1-preprocessor">#-------------------------------------------------------------------------------
+#&nbsp;default&nbsp;function&nbsp;displays&nbsp;menu&nbsp;to&nbsp;user
+#-------------------------------------------------------------------------------
+</span><span class="cpp1-identifier">def</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-reservedword">default</span><span class="cpp1-symbol">():
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;find&nbsp;all&nbsp;devices
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">all_hids</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">hid.find_all_hid_devices()
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;if&nbsp;devices&nbsp;found
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">if</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">all_hids:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;show&nbsp;user&nbsp;menu
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">txt1=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;Choose&nbsp;a&nbsp;device&nbsp;to&nbsp;monitor&nbsp;input&nbsp;reports:\n&quot;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">txt2=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;0&nbsp;=&gt;&nbsp;Exit\n&quot;
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;write&nbsp;menu&nbsp;to&nbsp;textbox1
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">t1.insert(END,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">txt1)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">t1.insert(END,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">txt2)
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;get&nbsp;data&nbsp;on&nbsp;all&nbsp;found&nbsp;devices
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">for</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">index,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">device</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">in</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">enumerate(all_hids):
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">device_name</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">str(</span><span class="cpp1-string">&quot;{0.vendor_name}&nbsp;{0.product_name}&quot;</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-illegalchar">\
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-string">&quot;(vID=0x{1:04x},&nbsp;pID=0x{2:04x})&quot;</span><span class="cpp1-illegalchar">\
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-string">&quot;&quot;</span><span class="cpp1-symbol">.format(device,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">device.vendor_id,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">device.product_id))
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;display&nbsp;found&nbsp;devices&nbsp;for&nbsp;user
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">txt3</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(</span><span class="cpp1-string">&quot;{0}&nbsp;=&gt;&nbsp;{1}\n&quot;</span><span class="cpp1-symbol">.format(index+</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">device_name))
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;write&nbsp;all&nbsp;options&nbsp;to&nbsp;textbox
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">t1.insert(END,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">txt3)
+
+</span><span class="cpp1-preprocessor">#-------------------------------------------------------------------------------
+#&nbsp;function&nbsp;is&nbsp;event&nbsp;handler&nbsp;for&nbsp;button&nbsp;click&nbsp;and&nbsp;communicates&nbsp;with&nbsp;PC
+#-------------------------------------------------------------------------------
+</span><span class="cpp1-identifier">def</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">onClick():
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#disable&nbsp;button
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">btn1.config(state=DISABLED)
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;clear&nbsp;textbox&nbsp;1
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">t1.</span><span class="cpp1-reservedword">delete</span><span class="cpp1-symbol">(</span><span class="cpp1-string">&quot;1.0&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">END)
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;find&nbsp;all&nbsp;devices
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">all_hids</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">hid.find_all_hid_devices()
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;get&nbsp;user&nbsp;choice&nbsp;of&nbsp;device&nbsp;from&nbsp;textbox&nbsp;2
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">selected_device</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-symbol">(t2.get(</span><span class="cpp1-float">1.0</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">END))
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;store&nbsp;user&nbsp;selection&nbsp;in&nbsp;variable
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">device</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">all_hids[selected_device-</span><span class="cpp1-number">1</span><span class="cpp1-symbol">]
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">try</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;open&nbsp;selected&nbsp;device
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">device.open()
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;set&nbsp;datahandler&nbsp;to&nbsp;read&nbsp;data
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">device.set_raw_data_handler(readData)
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;browse&nbsp;output&nbsp;reports
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">report</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">device.find_output_reports()
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;while&nbsp;not&nbsp;key&nbsp;pressed&nbsp;and&nbsp;device&nbsp;is&nbsp;connected,&nbsp;keep&nbsp;doing
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">while</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">not</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">kbhit()</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">and</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">device.is_plugged():
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#turn&nbsp;LED&nbsp;off
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">buffer=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">[</span><span class="cpp1-hexadecimal">0xFF</span><span class="cpp1-symbol">]*</span><span class="cpp1-number">65
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">buffer[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]=</span><span class="cpp1-hexadecimal">0x0</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-illegalchar">#</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">report</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">id
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">buffer[</span><span class="cpp1-number">1</span><span class="cpp1-symbol">]=</span><span class="cpp1-hexadecimal">0x74</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-illegalchar">#</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">off</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">command</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(t)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">report[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">].set_raw_data(buffer)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">report[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">].send()
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;write&nbsp;value&nbsp;every&nbsp;second&nbsp;and&nbsp;update&nbsp;window
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sleep(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">window.update()
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;turn&nbsp;LED&nbsp;on
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">buffer=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">[</span><span class="cpp1-hexadecimal">0xFF</span><span class="cpp1-symbol">]*</span><span class="cpp1-number">65
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">buffer[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]=</span><span class="cpp1-hexadecimal">0x0</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-illegalchar">#</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">report</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">id
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">buffer[</span><span class="cpp1-number">1</span><span class="cpp1-symbol">]=</span><span class="cpp1-hexadecimal">0x62</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-illegalchar">#</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">on</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">command(b)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">report[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">].set_raw_data(buffer)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">report[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">].send()
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;write&nbsp;value&nbsp;every&nbsp;second&nbsp;and&nbsp;update&nbsp;window
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sleep(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">window.update()
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">except</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">IndexError:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">err_txt</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;Please&nbsp;check&nbsp;your&nbsp;device&nbsp;and&nbsp;try&nbsp;again&quot;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">t1.insert(END,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">err_txt)
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">finally:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-preprocessor">#&nbsp;close&nbsp;device
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">device.close()
+
+
+</span><span class="cpp1-preprocessor">#-------------------------------------------------------------------------------
+#&nbsp;function&nbsp;shows&nbsp;about&nbsp;box&nbsp;on&nbsp;GUI
+#-------------------------------------------------------------------------------
+</span><span class="cpp1-identifier">def</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">showAbout():
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">messagebox.showinfo(</span><span class="cpp1-string">&quot;About&nbsp;HID&nbsp;Communicator&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;Created&nbsp;by&nbsp;Armstrong&nbsp;Subero&quot;</span><span class="cpp1-symbol">)
+
+</span><span class="cpp1-preprocessor">#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#&nbsp;Program&nbsp;Start
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+
+#&nbsp;create&nbsp;an&nbsp;empty&nbsp;window
+</span><span class="cpp1-identifier">window</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">Tk()
+
+</span><span class="cpp1-preprocessor">#&nbsp;rename&nbsp;window
+</span><span class="cpp1-identifier">window.title(</span><span class="cpp1-string">&quot;HID&nbsp;Communicator&quot;</span><span class="cpp1-symbol">)
+
+</span><span class="cpp1-preprocessor">#&nbsp;make&nbsp;window&nbsp;non-resizeable
+</span><span class="cpp1-identifier">window.resizable(</span><span class="cpp1-number">0</span><span class="cpp1-symbol">,</span><span class="cpp1-number">0</span><span class="cpp1-symbol">)
+
+</span><span class="cpp1-preprocessor">#&nbsp;text&nbsp;window
+</span><span class="cpp1-identifier">t1</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">Text(window,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">height=</span><span class="cpp1-number">10</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">width=</span><span class="cpp1-number">80</span><span class="cpp1-symbol">)
+t1.grid(row</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">0</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">column=</span><span class="cpp1-number">0</span><span class="cpp1-symbol">)
+
+</span><span class="cpp1-preprocessor">#&nbsp;make&nbsp;textbox&nbsp;read&nbsp;only
+</span><span class="cpp1-identifier">t1.bind(</span><span class="cpp1-string">&quot;&lt;Key&gt;&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">lambda</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">e:</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;break&quot;</span><span class="cpp1-symbol">)
+
+</span><span class="cpp1-preprocessor">#&nbsp;entry&nbsp;box
+</span><span class="cpp1-identifier">t2</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">Text(window,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">height=</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">width=</span><span class="cpp1-number">8</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">padx=</span><span class="cpp1-number">10</span><span class="cpp1-symbol">)
+t2.grid(row</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">3</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">column=</span><span class="cpp1-number">0</span><span class="cpp1-symbol">)
+
+</span><span class="cpp1-preprocessor">#&nbsp;create&nbsp;buttons
+</span><span class="cpp1-identifier">buttonframe</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">Frame(window)
+buttonframe.grid(row=</span><span class="cpp1-number">5</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">column=</span><span class="cpp1-number">0</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">columnspan=</span><span class="cpp1-number">2</span><span class="cpp1-symbol">)
+btn1</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">Button(buttonframe,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">text</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;Enter&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">width=</span><span class="cpp1-number">10</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">command=onClick)
+btn1.grid(row=</span><span class="cpp1-number">0</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">column=</span><span class="cpp1-number">0</span><span class="cpp1-symbol">)
+
+</span><span class="cpp1-preprocessor">#&nbsp;add&nbsp;menubar
+</span><span class="cpp1-identifier">menu=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">Menu(window)
+window.config(menu=menu)
+
+</span><span class="cpp1-preprocessor">#&nbsp;add&nbsp;menu&nbsp;items
+</span><span class="cpp1-identifier">filemenu</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">Menu(menu,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">tearoff=</span><span class="cpp1-number">0</span><span class="cpp1-symbol">)
+menu.add_cascade(label=</span><span class="cpp1-string">&quot;Info&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">menu=filemenu)
+filemenu.add_command(label=</span><span class="cpp1-string">&quot;About&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">command=showAbout)
+
+</span><span class="cpp1-preprocessor">#&nbsp;call&nbsp;default&nbsp;function
+</span><span class="cpp1-reservedword">default</span><span class="cpp1-symbol">()
+
+</span><span class="cpp1-preprocessor">#infinite&nbsp;loop
+</span><span class="cpp1-identifier">window.mainloop()
+
+</span></code></pre><!--EndFragment--></body>
+</html>

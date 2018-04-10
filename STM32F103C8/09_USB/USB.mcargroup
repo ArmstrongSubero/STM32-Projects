@@ -1,0 +1,6 @@
+[PROJECTS]
+Count=2
+Project0=..\08_OC_CO\Output_Capture.mcpar
+Project1=USB.mcpar
+[ActiveProject]
+Index=1

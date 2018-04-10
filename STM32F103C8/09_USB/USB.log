@@ -1,0 +1,15 @@
+0	1	mikroCARM.exe -MSF -DBG -pSTM32F103C8 -BIN -LHF -DL -SSA -O11111115 -fo72 -N"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\10_USB\USB.mcpar" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Uses\ST M3\" -SP"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\10_USB\" -IP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Uses\ST M3\" -IP"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\10_USB\" "USB.c" "USBdsc.c" "__Lib_Math.emcl" "__Lib_MathDouble.emcl" "__Lib_Delays.emcl" "__Lib_System_101_102_103.emcl" "__Lib_GPIO_32F10x_Defs.emcl" "__Lib_GPIO_32F10x.emcl" "__Lib_USB_32F10x.emcl"	 
+diagnostics: 0	122	Compilation Started	USB.c
+hint: 0	1004	interrupt handler (USB0Interrupt at 0x0024)	USB.c
+diagnostics: 53	123	Compiled Successfully	USB.c
+hint: 12	1164	Variable 'n_byte' has been eliminated by optimizer	USB.c
+diagnostics: 0	122	Compilation Started	USBdsc.c
+diagnostics: 166	123	Compiled Successfully	USBdsc.c
+diagnostics: 0	127	All files Compiled in 359 ms	 
+hint: 0	1144	Used RX: 16 (100%)   Free RX: 0 (0%)	Used RX: 16 (100%)   Free RX: 0 (0%)
+hint: 0	1144	Static RAM (bytes): 464   Dynamic RAM (bytes): 20013	Static RAM (bytes): 464   Dynamic RAM (bytes): 20013
+hint: 0	1144	Used ROM (bytes): 10801 (16%)  Free ROM (bytes): 54735 (84%)	Used ROM (bytes): 10801 (16%)  Free ROM (bytes): 54735 (84%)
+diagnostics: 0	125	Project Linked Successfully	USB.mcpar
+diagnostics: 0	128	Linked in 266 ms	 
+diagnostics: 0	129	Project 'USB.mcpar' completed: 734 ms	 
+diagnostics: 0	103	Finished successfully: 11 Dec 2017, 22:31:11	USB.mcpar
