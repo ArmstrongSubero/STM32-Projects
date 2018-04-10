@@ -1,7 +1,0 @@
-main
-	NVIC_IntEnable
-	__FillZeros
-	GPIO_Digital_Output
-		GPIO_Config
-			GPIO_Clk_Enable
-Timer2_interrupt
