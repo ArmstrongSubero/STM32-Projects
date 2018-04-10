@@ -1,0 +1,6 @@
+[PROJECTS]
+Count=2
+Project0=..\I03_NRF24L01_TX\NRF24L01_TX.mcpar
+Project1=NRF24L01_RX.mcpar
+[ActiveProject]
+Index=1
