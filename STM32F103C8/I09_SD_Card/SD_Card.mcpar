@@ -1,0 +1,140 @@
+[DEVICE]
+Name=STM32F103C8
+Clock=72000000
+[MEMORY_MODEL]
+Value=0
+[BUILD_TYPE]
+Value=0
+[ACTIVE_TAB]
+Value=SD_Card.c
+[USE_EEPROM]
+Value=0
+[USE_HEAP]
+Value=1
+[HEAP_SIZE]
+Value=2000
+[EEPROM_DEFINITION]
+Value=
+[FILES]
+File0=SD_Card.c
+Count=1
+[BINARIES]
+Count=0
+[IMAGES]
+Count=0
+ActiveImageIndex=-1
+[OPENED_FILES]
+File0=SD_Card.c
+File1=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Uses\ST M3\__Lib_TFT_Defs.c
+Count=2
+[EEPROM]
+Count=0
+[ACTIVE_COMMENTS_FILES]
+Count=0
+[OTHER_FILES]
+Count=0
+[SEARCH_PATH]
+Path0=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\FAT32 Library\Uses\
+Path1=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\FT800\Uses\
+Path2=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\FT810\Uses\
+Path3=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\FT812\Uses\
+Path4=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\Memory manager dlmalloc\Uses\
+Path5=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\RTC\Uses\
+Count=6
+[HEADER_PATH]
+Path0=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\FAT32 Library\Uses\
+Path1=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\FT800\Uses\
+Path2=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\FT810\Uses\
+Path3=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\FT812\Uses\
+Path4=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\Memory manager dlmalloc\Uses\
+Path5=..\..\..\..\..\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\RTC\Uses\
+Count=6
+[HEADERS]
+Count=0
+[PLDS]
+Count=0
+[Useses]
+File0=FT800_Defs_STM32
+File1=FT800_STM32
+File2=FT810_Defs_STM32
+File3=FT810_STM32
+File4=FT812_Defs_STM32
+File5=FT812_STM32
+File6=Memory_manager_dlmalloc
+File7=ADC
+File8=Button
+File9=CAN
+File10=CAN_SPI
+File11=Compact_Flash
+File12=Compact_Flash_FAT16
+File13=Conversions
+File14=C_Math
+File15=C_Stdlib
+File16=C_String
+File17=C_Type
+File18=EPSON_S1D13700
+File19=FFT
+File20=FIR
+File21=FLASH
+File22=Glcd
+File23=Glcd_Fonts
+File24=I2C
+File25=IIR
+File26=Keypad4x4
+File27=Lcd
+File28=Lcd_Constants
+File29=Manchester
+File30=Matrices
+File31=MemManager
+File32=Mmc
+File33=Mmc_FAT16
+File34=Mmc_Fat16_Config
+File35=One_Wire
+File36=Port_Expander
+File37=PrintOut
+File38=PS2
+File39=PWM
+File40=Q15
+File41=Q31
+File42=RS485
+File43=Software_I2C
+File44=Software_SPI
+File45=Software_UART
+File46=Sound
+File47=SPI
+File48=SPI_Ethernet
+File49=SPI_Ethernet_24j600
+File50=SPI_Glcd
+File51=SPI_Lcd
+File52=SPI_Lcd8
+File53=SPI_T6963C
+File54=Sprintf
+File55=Sprinti
+File56=Sprintl
+File57=STMPE610
+File58=T6963C
+File59=Time
+File60=TouchPanel
+File61=Trigonometry
+File62=TSC2006
+File63=UART
+File64=Vectors
+File65=RTC
+File66=FAT32_Driver_STM32_M3_M4_M7
+File67=FAT32_STM32_M3_M4_M7
+File68=FAT32_Defs_STM32_M3_M4_M7
+Count=69
+[EXPANDED_NODES]
+0=ST7735.mcpar
+1=Sources
+Count=2
+[PROGRAMMER_OPTIONS]
+Value=SWD
+[PROGRAMMER_TYPE]
+Value=mE
+[DEBUGGER_TYPE]
+Value=
+[AT_DEBUG_STARTUP]
+LOAD_BIN_TO_RAM=0
+START_EXEC_FROM_ADDR=0
+START_ADDR=-1

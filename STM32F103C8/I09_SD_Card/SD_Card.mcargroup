@@ -1,0 +1,6 @@
+[PROJECTS]
+Count=2
+Project0=..\I01_ST7735\ST7735.mcpar
+Project1=SD_Card.mcpar
+[ActiveProject]
+Index=1

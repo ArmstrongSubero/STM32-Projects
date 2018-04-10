@@ -1,0 +1,670 @@
+/*
+ * Project Name:
+    FAT32 Library
+ * Copyright:
+    (c) MikroElektronika, 2017.
+ * Revision History:
+    20110826 - initial release
+ * Description:
+    This simple example demonstrates the use of FAT32 Library
+    on SD/MMC cards via SPI hardware interface and folder content
+    display via UART module.
+    Files and folders are created and removed; files are read,
+    written, their content sent to PC via UART.
+ * Test configuration:
+     MCU:             STM32F207VG
+                      http://www.st.com/internet/com/TECHNICAL_RESOURCES/TECHNICAL_LITERATURE/DATASHEET/CD00237391.pdf
+     Dev.Board:       EasyMx PRO v7 for STM32(R) ARM(R)
+                      http://www.mikroe.com/eng/products/view/852/easymx-pro-v7-for-stm32/
+     Oscillator:      HSI-PLL, 8.000MHz
+     Ext. Modules:    None.
+     SW:              mikroC PRO for ARM
+                      http://www.mikroe.com/mikroc/#arm
+ * Notes:
+    + Make sure that SD card is properly formatted (to FAT32 file system)
+      prior testing it on this example.
+    + Turn off all LED switches (SW15) and pull-up/down switches.
+    + Connect USB cable to USB UARTA port and turn on Rx and Tx switches:
+        - SW12.1 -> ON
+        - SW12.2 -> ON
+    + Turn on SPI and MMC switches:
+        - SW13.1 -> ON
+        - SW13.2 -> ON
+        - SW13.3 -> ON
+        - SW14.3 -> ON
+    + Insert the card into MMC-SD module prior usage.
+ */
+
+#include "__Lib_FAT32.h"
+
+////////////////////////////////////////////////////////////////////////////////
+//#define DIR_TEST_1
+//#define DIR_TEST_2
+//#define FILE_TEST
+//#define SWAP_TEST
+#define LFN_TEST
+////////////////////////////////////////////////////////////////////////////////
+//
+//          Mmc Library requirements for different MPU families
+//
+////////////////////////////////////////////////////////////////////////////////
+
+sbit Mmc_Chip_Select           at GPIOD_ODR.B3;
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//          SPI initialization routines required by Mmc Library
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void initSPI(void)
+{
+    SPI3_Init_Advanced(_SPI_FPCLK_DIV64, _SPI_MASTER | _SPI_8_BIT |
+                       _SPI_CLK_IDLE_LOW | _SPI_FIRST_CLK_EDGE_TRANSITION |
+                       _SPI_MSB_FIRST | _SPI_SS_DISABLE | _SPI_SSM_ENABLE | _SPI_SSI_1,
+                       &_GPIO_MODULE_SPI3_PC10_11_12);
+}
+
+void initFastSPI(void)
+{
+    SPI3_CR1 = 0;
+
+    SPI3_Init_Advanced(_SPI_FPCLK_DIV2, _SPI_MASTER | _SPI_8_BIT |
+                       _SPI_CLK_IDLE_LOW | _SPI_FIRST_CLK_EDGE_TRANSITION |
+                       _SPI_MSB_FIRST | _SPI_SS_DISABLE | _SPI_SSM_ENABLE | _SPI_SSI_1,
+                       &_GPIO_MODULE_SPI3_PC10_11_12);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//  many of these messages are not used in the example,
+//  as they are intended for future improvement
+//
+////////////////////////////////////////////////////////////////////////////////
+
+const char cmd[16][16] =
+{
+    "init           ",    //  0
+    "qformat        ",    //  1
+    "mkdir          ",    //  2
+    "chdir          ",    //  3
+    "rmdir          ",    //  4
+    "dir            ",    //  5
+    "rendir         ",    //  6
+    "assign         ",    //  7
+    "read           ",    //  8
+    "append         ",    //  9
+    "rewrite        ",    // 10
+    "delete         ",    // 11
+    "rename         ",    // 12
+    "swap           ",    // 13
+    "set date       ",    // 14
+    "get date       "     // 15
+};
+
+const char cmdOK[16][16] =
+{
+    "init ok        ",
+    "qformat ok     ",
+    "mkdir ok       ",
+    "chdir ok       ",
+    "rmdir ok       ",
+    "dir ok         ",
+    "rendir ok      ",
+    "assign ok      ",
+    "read ok        ",
+    "append ok      ",
+    "rewrite ok     ",
+    "delete ok      ",
+    "rename ok      ",
+    "swap ok        ",
+    "set date ok    ",
+    "get date ok    "
+};
+
+const char cmdFAIL[16][16] =
+{
+    "init failed    ",
+    "qformat failed ",
+    "mkdir failed   ",
+    "chdir failed   ",
+    "rmdir failed   ",
+    "dir failed     ",
+    "rendir failed  ",
+    "assign failed  ",
+    "read failed    ",
+    "append failed  ",
+    "rewrite failed ",
+    "delete failed  ",
+    "rename failed  ",
+    "swap failed    ",
+    "set date failed",
+    "get date failed"
+};
+
+const char len[16] =
+{
+    4,
+    7,
+    5,
+    5,
+    5,
+    3,
+    6,
+    6,
+    4,
+    6,
+    7,
+    6,
+    6,
+    4,
+    8,
+    8
+};
+
+const char line[16]         =   "***************";
+const char unknown[16]      =   "unknown command";
+const char startOK[16]      =   "init successful";
+const char startFAIL[16]    =   "init failed    ";
+const char cmdStart[16]     =   "cmd demo start ";
+const char noFileName[16]   =   "NO FILE NAME   ";
+const char noDirName[16]    =   "NO DIR NAME    ";
+const char noVolumeName[16] =   "NO VOLUME NAME ";
+
+////////////////////////////////////////////////////////////////////////////////
+
+int8   err;
+uint8  i, j, attr;
+uint16 cnt, bpcl;
+uint32 k;
+uint32 size;
+uint32 totalClusts,
+       freeClusts,
+       badClusts;
+
+__TIME tm;
+__SECTOR sc;
+__HANDLE fileHandle[4];
+
+char ch;
+char DirName[20];
+char FileName[20];
+char uartbuf[32];
+char del[2] = "\r";
+
+char rdbuf[19] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+char wrbuf[15] = {'[', '+', ']', '-', '-', '-', '+', '+', '+', '=', '=', '=', '~', '~', '~'};
+
+#ifdef SWAP_TEST
+char buff[512];
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+
+static char* constToVar(char *dst, const char *src)
+{
+    char *tmp;
+
+    tmp = dst;
+    for (;;)
+    {
+        *dst = *src;
+        if (*src == 0) break;
+        src++;
+        dst++;
+    }
+    return tmp;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+/*char iscmd(char n)
+{
+    if (0 == memcmp(uartbuf, constToVar(varbuf, cmd[n]), len[n]))
+        return 1;
+    else
+        return 0;
+}*/
+
+////////////////////////////////////////////////////////////////////////////////
+
+void UART_Write_ConstText(const char *text)
+{
+    UART_Write_Text(constToVar(uartbuf, text));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// main program
+//
+////////////////////////////////////////////////////////////////////////////////
+void main(void)
+{
+    ///////////////////////////////////////
+    //  UART module initialization
+    ///////////////////////////////////////
+    UART1_Init(56000);
+    Delay_ms(100);
+
+    UART_Write(CR);
+    UART_Write_ConstText(line);
+    UART_Write(CR);
+    Delay_ms(100);
+
+    ///////////////////////////////////////
+    //  SPI module initialization
+    ///////////////////////////////////////
+    initSPI();
+
+    ///////////////////////////////////////
+    //  initialize storage device.
+    //  optionally, we could format the device
+    //  instead of just initializing it.
+    ///////////////////////////////////////
+    err = FAT32_Init();
+    //err = FAT32_format("dev0");
+    if (err < 0)
+    {
+            UART_Write(CR);
+            UART_Write_Text(constToVar(uartbuf, cmdFAIL[0]));
+            UART_Write(CR);
+
+            while(err < 0)  //  ...retry each second
+            {
+                    err = FAT32_Init();
+                    Delay_ms(1000);
+            }
+    }
+    ///////////////////////////////////////
+    //  if all went well, reinitialize
+    //  SPI with greater speed
+    ///////////////////////////////////////
+    initFastSPI();
+    UART_Write(CR);
+    UART_Write_Text(constToVar(uartbuf, cmdOK[0]));
+    UART_Write(CR);
+
+    err = FAT32_Dir();
+    UART_Write(CR);
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  In this section folder operation is demonstrated:
+    //      - folder creation (all files are left empty, however)
+    //      - entering in and out of a folder
+    //      - removal of a folder and it's contents
+    //      - display of folder contents
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    #ifdef DIR_TEST_1
+    {
+            tm.Year   = 2011;       // initialize time ...
+            tm.Month  = 8;
+            tm.Day    = 11;
+            tm.Hour   = 16;
+            tm.Minute = 20;
+            tm.Second = 11;
+
+            FAT32_SetTime(&tm);     // ...and set global time stamps
+            FAT32_IncTime(2*60*60 + 30*60 + 40);   // increment time stamp by 2 hours, 30 minutes and 40 seconds
+
+            err = 0;
+            memset(DirName, 0, 9);
+            for (i = 'A'; i <= 'Z'; i++)
+            {
+                    memcpy (DirName, "DIR_", 5);
+                    DirName[3] = i;
+
+                    err = FAT32_MakeDir(DirName);
+                    err = FAT32_ChangeDir(DirName);
+                    for (j = 'A'; j <= 'Z'; j++)
+                    {
+                            FAT32_IncTime(20*60 + 10);      // increment time stamp some more
+                            memcpy(FileName, "FILE__.TXT", 11);
+                            FileName[4] = i;
+                            FileName[5] = j;
+                            fileHandle[0] = FAT32_Open(FileName, FILE_APPEND);
+                            if (fileHandle[0] < 0)
+                            {
+                                    UART_Write(i);
+                                    UART_Write(j);
+                                    while(1);
+                            }
+                            err = FAT32_Close(fileHandle[0]);
+
+                            // get create and modification time stamps
+                            // they should be 20*60 + 10 seconds apart
+                            FAT32_getCTime(FileName, &tm);
+                            FAT32_getMTime(FileName, &tm);
+                    }
+                    {
+                            FAT32_IncTime(20*60 + 10);
+                            err = FAT32_MakeDir("DIRX");
+                            err = FAT32_Dir();
+                            UART_Write(CR);
+                            err = FAT32_ChangeDir("DIRX");
+                            fileHandle[0] = FAT32_Open("FILEX.TXT", FILE_WRITE);
+                            if (fileHandle[0] < 0)
+                            {
+                                    UART_Write(i);
+                                    UART_Write(j);
+                                    while(1);
+                            }
+                            err = FAT32_Close(fileHandle[0]);
+                            //err = FAT32_ChangeDir("..");
+                            err = FAT32_Dir();
+                            UART_Write(CR);
+                            err = FAT32_ChangeDir("\\"); // get back to the root directory.
+                    }
+                    //err = FAT32_ChangeDir("..");
+                    err = FAT32_Dir();
+                    UART_Write(CR);
+            }
+            for (i = 'A'; i <= 'Z'; i++)
+            {
+                    memcpy (DirName, "DIR_", 5);
+                    DirName[3] = i;
+                    err = FAT32_DeleteRec(DirName);
+                    err = FAT32_Dir();
+                    UART_Write(CR);
+            }
+            err = FAT32_Dir();
+            UART_Write(CR);
+    }
+    #endif
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  In this section creation and removal of a deep directory tree
+    //  is demonstrated
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    #ifdef DIR_TEST_2
+    {
+            tm.Year   = 2011;
+            tm.Month  = 8;
+            tm.Day    = 20;
+            tm.Hour   = 12;
+            tm.Minute = 40;
+            tm.Second = 29;
+
+            FAT32_SetTime(&tm);
+            FAT32_IncTime(1282);
+
+            err = 0;
+            memset(DirName, 0, 9);
+            for (i = 'A'; i <= 'Z'; i++)
+            {
+                    memcpy (DirName, "DIR_", 5);
+                    DirName[3] = i;
+
+                    err = FAT32_MakeDir(DirName);
+                    err = FAT32_Dir();
+                    UART_Write(CR);
+                    err = FAT32_ChangeDir(DirName);
+                    for (j = 'A'; j <= 'Z'; j++)
+                    {
+                            memcpy(FileName, "FILE__.TXT", 11);
+                            FileName[4] = i;
+                            FileName[5] = j;
+                            fileHandle[0] = FAT32_Open(FileName, FILE_APPEND);
+                            if (fileHandle[0] < 0)
+                            {
+                                    UART_Write(i);
+                                    UART_Write(j);
+                                    while(1);
+                            }
+                            err = FAT32_Close(fileHandle[0]);
+                    }
+            }
+            for (i = 'A';;)
+            {
+                    memcpy (DirName, "DIR_", 5);
+                    DirName[3] = i;
+                    err = FAT32_ChangeDir("\\"); // get back to the root directory.
+                    err = FAT32_Dir();
+                    UART_Write(CR);
+                    err = FAT32_DeleteRec(DirName);
+                    err = FAT32_Dir();
+                    UART_Write(CR);
+                    break;
+            }
+    }
+    #endif
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  In this section file operation is demonstrated:
+    //      - read,
+    //      - write,
+    //      - append,
+    //      - removal.
+    //  User might wish to try seek, rename, etc.
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    #ifdef FILE_TEST
+    {
+            // open some files
+            fileHandle[0] = FAT32_Open("FILE1.TXT", FILE_WRITE);
+            fileHandle[1] = FAT32_Open("FILE2.TXT", FILE_APPEND);
+            fileHandle[2] = FAT32_Open("FILE3.TXT", FILE_APPEND);
+            fileHandle[3] = FAT32_Open("FILE4.TXT", FILE_APPEND);
+
+            if (fileHandle[0] < 0) while(1);
+            if (fileHandle[1] < 0) while(1);
+            if (fileHandle[2] < 0) while(1);
+            if (fileHandle[3] < 0) while(1);
+
+            {
+                    for (k = 0; k < 1000; k++)
+                    {
+                            err = FAT32_Write(fileHandle[0], wrbuf, sizeof(wrbuf));
+                    }
+                    UART_Write(CR);
+                    err = FAT32_Close(fileHandle[0]);
+            }
+            err = FAT32_Dir();
+            UART_Write(CR);
+
+            fileHandle[0] = FAT32_Open("FILE1.TXT", FILE_READ);
+            if (fileHandle[0] < 0) while(1);
+
+            err = FAT32_Size("FILE1.TXT", &size);
+            for (k = 0; k < size;)
+            {
+                    err = FAT32_Read(fileHandle[0], rdbuf, sizeof(rdbuf));
+                    for (cnt = 0; cnt < sizeof(rdbuf); cnt++, k++)
+                    {
+                            if (k < size)
+                            {
+                                    UART_Write(rdbuf[cnt]);
+                            }
+                            else
+                            {
+                                    break;
+                            }
+                    }
+            }
+            UART_Write(CR);
+            UART_Write(CR);
+
+
+            FAT32_Seek(fileHandle[0], 0);   // reset file cursor to 0.
+            // FAT32_Seek(fileHandle[0], 5789); // it can be changed to anywhere within a file.
+
+            // read 'rdlen' bytes in "FILE1.TXT" from the position set by FAT32_Seek()
+            // and write them to "FILE2.TXT" and "FILE3.TXT"
+            err = FAT32_Read (fileHandle[0], rdbuf, sizeof(rdbuf));
+            err = FAT32_Write(fileHandle[1], rdbuf, sizeof(rdbuf));
+            err = FAT32_Write(fileHandle[2], rdbuf, sizeof(rdbuf));
+
+            // read 3x'rdlen' bytes in "FILE1.TXT" from the current position
+            // and write them to "FILE4.TXT"
+            err = FAT32_Read (fileHandle[0], rdbuf, sizeof(rdbuf));
+            err = FAT32_Write(fileHandle[3], rdbuf, sizeof(rdbuf));
+            err = FAT32_Read (fileHandle[0], rdbuf, sizeof(rdbuf));
+            err = FAT32_Write(fileHandle[3], rdbuf, sizeof(rdbuf));
+            err = FAT32_Read (fileHandle[0], rdbuf, sizeof(rdbuf));
+            err = FAT32_Write(fileHandle[3], rdbuf, sizeof(rdbuf));
+
+            // close all opened files
+            err = FAT32_Close(fileHandle[0]);
+            err = FAT32_Close(fileHandle[1]);
+            err = FAT32_Close(fileHandle[2]);
+            err = FAT32_Close(fileHandle[3]);
+
+            // display new info on modified files.
+            // the info is updated only after file closure.
+            err = FAT32_Dir();
+            UART_Write(CR);
+
+            // change attribute "FILE1.TXT"
+            err = FAT32_GetAttr("FILE1.TXT", &attr);
+            err = FAT32_SetAttr("FILE1.TXT", attr | ATTR_HIDDEN);
+
+            err = FAT32_Dir();
+            UART_Write(CR);
+    }
+    #endif
+
+    ////////////////////////////////////////////////////////////////////////
+    //
+    //  In this section creation of a swap file is demonstrated.
+    //  'sc' variable points to the 1st sector of the swap file,
+    //  if the user needs access to it via readSector and writeSector
+    //  routines.
+    //
+    ////////////////////////////////////////////////////////////////////////
+    #ifdef SWAP_TEST
+    {
+            // delete already existing swap file
+            if (FAT32_Exists("SWAP.TXT"))
+            {
+                    UART_Write_Text("Deleting existing swap file...");
+                    UART_Write(CR);
+                    FAT32_Delete("SWAP.TXT");
+                    err = FAT32_Dir();
+                    UART_Write(CR);
+            }
+
+            UART_Write_Text("Creating new swap file...");
+            UART_Write(CR);
+            err = FAT32_MakeSwap("SWAP.TXT", 500, &sc);  // if swap file creation was successful,
+                                                                                                            // we can access it with
+            fileHandle[0] = FAT32_Open("SWAP.TXT", FILE_READ);
+            if (fileHandle[0] < 0) while(1);
+
+            err = FAT32_Close(fileHandle[0]);
+
+            err = FAT32_Dir();
+            UART_Write(CR);
+
+            // fill swap file using sector based access
+            if (sc) {
+              UART_Write_Text("Fill swap file using sector based access...");
+              UART_Write(CR);
+              UART_Write_Text("Start sector:");
+              LongWordToStr(sc, uartbuf);
+              UART_Write_Text(uartbuf);
+              UART_Write(CR);
+              for(cnt=0; cnt<512; cnt++)
+                    buff[cnt] = cnt;
+
+              for(k=0; k<500; k++) {
+                    FAT32_Dev_Write_Sector(sc++, buff);
+                    UART_Write('.');
+              }
+              UART_Write(CR);
+            }
+
+            err = FAT32_Dir();
+            UART_Write(CR);
+    }
+    #endif
+        
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    //  In this section long file name use is demonstrated
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    #ifdef LFN_TEST
+        for (i = 'A'; i <= 'C'; i++) {
+            memcpy (DirName, "Long _ Name", 12);
+            DirName[5] = i;
+
+            err = FAT32_MakeDir(DirName);
+            err = FAT32_Dir();
+            UART_Write(CR);
+        }
+
+        err = FAT32_ChangeDir(DirName);
+        err = FAT32_Dir();
+        UART_Write(CR);
+
+        for (i = 'A'; i <= 'C'; i++) {
+            memcpy (DirName, "Same Short Name _", 18);
+            DirName[16] = i;
+
+            err = FAT32_MakeDir(DirName);
+            err = FAT32_Dir();
+            UART_Write(CR);
+        }
+        
+        for (i = 'A'; i <= 'C'; i++) {
+            memcpy (DirName, "Same Short Name _", 18);
+            DirName[16] = i;
+
+            err = FAT32_Delete(DirName);
+            err = FAT32_Dir();
+            UART_Write(CR);
+        }
+
+        err = FAT32_ChangeDir("..");
+        err = FAT32_Dir();
+        UART_Write(CR);
+
+        for (i = 'A'; i <= 'C'; i++) {
+            memcpy (DirName, "Long _ Name", 12);
+            DirName[5] = i;
+
+            err = FAT32_Delete(DirName);
+            err = FAT32_Dir();
+            UART_Write(CR);
+        }
+    #endif
+
+    UART_Write(CR);
+    FAT32_GetFreeSpace(&freeClusts, &bpcl);
+    UART_Write_Text("Free Space Info:");
+    UART_Write(CR);
+    UART_Write_Text("Free clusters: ");
+    LongWordToStr(freeClusts, uartbuf);
+    UART_Write_Text(uartbuf);
+    UART_Write(CR);
+    UART_Write_Text("Free bytes: ");
+    LongWordToStr(freeClusts*bpcl, uartbuf);
+    UART_Write_Text(uartbuf);
+    UART_Write(CR);
+
+    UART_Write(CR);
+    FAT32_ScanDisk(&totalClusts, &freeClusts, &badClusts);
+    UART_Write_Text("Scan Disk Info:");
+    UART_Write(CR);
+    UART_Write_Text("Total clusters: ");
+    LongWordToStr(totalClusts, uartbuf);
+    UART_Write_Text(uartbuf);
+    UART_Write(CR);
+    UART_Write_Text("Free clusters: ");
+    LongWordToStr(freeClusts, uartbuf);
+    UART_Write_Text(uartbuf);
+    UART_Write(CR);
+    UART_Write_Text("Bad clusters: ");
+    LongWordToStr(badClusts, uartbuf);
+    UART_Write_Text(uartbuf);
+    UART_Write(CR);
+
+    UART_Write(CR);
+    UART_Write_Text(constToVar(uartbuf, line));
+    UART_Write(CR);
+}
