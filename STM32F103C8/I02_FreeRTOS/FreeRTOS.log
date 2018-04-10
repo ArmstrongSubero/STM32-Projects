@@ -1,0 +1,54 @@
+0	1	mikroCARM.exe -MSF -DBG -pSTM32F103C8 -HEAP 8192 -BIN -LHF -C -DL -SSA -O11111110 -fo72 -N"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\FreeRTOS.mcpar" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Uses\ST M3\" -SP"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\" -SP"C:\Users\armst\Downloads\1498058629_freertos_v9.0.0__mikroc_arm\FreeRTOS\Source\" -SP"C:\Users\armst\Downloads\1498058629_freertos_v9.0.0__mikroc_arm\FreeRTOS\Source\portable\MemMang\" -SP"C:\Users\armst\Downloads\1498058629_freertos_v9.0.0__mikroc_arm\FreeRTOS\Source\portable\MikroC\ARM_CM3\" -SP"C:\Users\armst\Downloads\1498058629_freertos_v9.0.0__mikroc_arm\FreeRTOS\Demo\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\Memory manager dlmalloc\Uses\" -IP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Uses\ST M3\" -IP"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\" -IP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Packages\Memory manager dlmalloc\Uses\" "main.c" "croutine.c" "event_groups.c" "list.c" "queue.c" "tasks.c" "timers.c" "heap_3.c" "port.c" "__Lib_Math.emcl" "__Lib_MathDouble.emcl" "__Lib_Delays.emcl" "__Lib_System_101_102_103.emcl" "__Lib_GPIO_32F10x_Defs.emcl" "__Lib_GPIO_32F10x.emcl" "__Lib_CString.emcl" "__Lib_dlmalloc.emcl"	 
+diagnostics: 0	122	Compilation Started	stdint.h
+diagnostics: 103	123	Compiled Successfully	main.c
+diagnostics: 0	122	Compilation Started	stddef.h
+diagnostics: 756	123	Compiled Successfully	croutine.h
+hint: 27	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text      portYIELD_WITHIN_API();     macro "portYIELD_WITHIN_API" defined as: #define portYIELD_WITHIN_API  portYIELD 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\event_groups.c
+hint: 41	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text      portYIELD_WITHIN_API();     macro "portYIELD_WITHIN_API" defined as: #define portYIELD_WITHIN_API  portYIELD 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\event_groups.c
+diagnostics: 0	122	Compilation Started	stdlib.h
+warning: 556	1505	Suspicious pointer conversion	event_groups.c
+diagnostics: 714	123	Compiled Successfully	event_groups.c
+diagnostics: 0	122	Compilation Started	stdlib.h
+diagnostics: 242	123	Compiled Successfully	list.c
+hint: 30	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text     in macro "queueYIELD_IF_USING_PREEMPTION" defined as: #define queueYIELD_IF_USING_PREEMPTION()  portYIELD_WITHIN_API() 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\queue.c
+hint: 81	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text     in macro "queueYIELD_IF_USING_PREEMPTION" defined as: #define queueYIELD_IF_USING_PREEMPTION()  portYIELD_WITHIN_API() 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\queue.c
+hint: 82	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text     in macro "queueYIELD_IF_USING_PREEMPTION" defined as: #define queueYIELD_IF_USING_PREEMPTION()  portYIELD_WITHIN_API() 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\queue.c
+hint: 89	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text      portYIELD_WITHIN_API();     macro "portYIELD_WITHIN_API" defined as: #define portYIELD_WITHIN_API  portYIELD 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\queue.c
+hint: 12	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text     in macro "queueYIELD_IF_USING_PREEMPTION" defined as: #define queueYIELD_IF_USING_PREEMPTION()  portYIELD_WITHIN_API() 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\queue.c
+hint: 13	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text     in macro "queueYIELD_IF_USING_PREEMPTION" defined as: #define queueYIELD_IF_USING_PREEMPTION()  portYIELD_WITHIN_API() 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\queue.c
+hint: 14	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text      portYIELD_WITHIN_API();     macro "portYIELD_WITHIN_API" defined as: #define portYIELD_WITHIN_API  portYIELD 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\queue.c
+diagnostics: 0	122	Compilation Started	stdlib.h
+warning: 1725	1505	Suspicious pointer conversion	queue.c
+warning: 1738	1505	Suspicious pointer conversion	queue.c
+diagnostics: 1989	123	Compiled Successfully	queue.c
+hint: 10	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text     in macro "taskYIELD_IF_USING_PREEMPTION" defined as: #define taskYIELD_IF_USING_PREEMPTION()  portYIELD_WITHIN_API() 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\tasks.c
+hint: 11	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text      portYIELD_WITHIN_API();     macro "portYIELD_WITHIN_API" defined as: #define portYIELD_WITHIN_API  portYIELD 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\tasks.c
+hint: 12	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text      portYIELD_WITHIN_API();     macro "portYIELD_WITHIN_API" defined as: #define portYIELD_WITHIN_API  portYIELD 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\tasks.c
+hint: 12	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text      portYIELD_WITHIN_API();     macro "portYIELD_WITHIN_API" defined as: #define portYIELD_WITHIN_API  portYIELD 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\tasks.c
+hint: 15	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text     in macro "taskYIELD_IF_USING_PREEMPTION" defined as: #define taskYIELD_IF_USING_PREEMPTION()  portYIELD_WITHIN_API() 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\tasks.c
+hint: 16	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text      portYIELD_WITHIN_API();     macro "portYIELD_WITHIN_API" defined as: #define portYIELD_WITHIN_API  portYIELD 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\tasks.c
+hint: 17	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text     in macro "taskYIELD_IF_USING_PREEMPTION" defined as: #define taskYIELD_IF_USING_PREEMPTION()  portYIELD_WITHIN_API() 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\tasks.c
+hint: 21	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text     in macro "taskYIELD_IF_USING_PREEMPTION" defined as: #define taskYIELD_IF_USING_PREEMPTION()  portYIELD_WITHIN_API() 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\tasks.c
+hint: 42	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text      portYIELD_WITHIN_API();     macro "portYIELD_WITHIN_API" defined as: #define portYIELD_WITHIN_API  portYIELD 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\tasks.c
+hint: 42	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text      portYIELD_WITHIN_API();     macro "portYIELD_WITHIN_API" defined as: #define portYIELD_WITHIN_API  portYIELD 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\tasks.c
+hint: 44	1354	 warning: Replacement text "portYIELD" of macro "portYIELD_WITHIN_API" involved subsequent text     in macro "taskYIELD_IF_USING_PREEMPTION" defined as: #define taskYIELD_IF_USING_PREEMPTION()  portYIELD_WITHIN_API() 	C:\Users\armst\Desktop\STM32F103C8T6\MikroC\I02_FreeRTOS\tasks.c
+diagnostics: 0	122	Compilation Started	stdlib.h
+diagnostics: 4801	123	Compiled Successfully	tasks.c
+diagnostics: 0	122	Compilation Started	stdlib.h
+diagnostics: 1306	123	Compiled Successfully	timers.h
+diagnostics: 0	122	Compilation Started	stdlib.h
+diagnostics: 138	123	Compiled Successfully	heap_3.c
+diagnostics: 0	122	Compilation Started	stddef.h
+hint: 0	1004	interrupt handler (vPortSVCHandler at 0x000B)	port.c
+hint: 0	1004	interrupt handler (xPortPendSVHandler at 0x000E)	port.c
+hint: 0	1004	interrupt handler (xPortSysTickHandler at 0x000F)	port.c
+diagnostics: 732	123	Compiled Successfully	port.c
+diagnostics: 0	127	All files Compiled in 968 ms	 
+hint: 0	1144	Used RX: 16 (100%)   Free RX: 0 (0%)	Used RX: 16 (100%)   Free RX: 0 (0%)
+hint: 0	1144	Static RAM (bytes): 1002   Dynamic RAM (bytes): 11281	Static RAM (bytes): 1002   Dynamic RAM (bytes): 11281
+hint: 0	1144	HEAP RAM (bytes): 8192	HEAP RAM (bytes): 8192
+hint: 0	1144	Used ROM (bytes): 16534 (25%)  Free ROM (bytes): 49002 (75%)	Used ROM (bytes): 16534 (25%)  Free ROM (bytes): 49002 (75%)
+diagnostics: 0	125	Project Linked Successfully	FreeRTOS.mcpar
+diagnostics: 0	128	Linked in 454 ms	 
+diagnostics: 0	129	Project 'FreeRTOS.mcpar' completed: 1532 ms	 
+diagnostics: 0	103	Finished successfully: 09 Apr 2018, 23:57:24	FreeRTOS.mcpar
