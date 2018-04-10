@@ -1,0 +1,1 @@
+These projects are all written using GCC with CubeMX for code generation

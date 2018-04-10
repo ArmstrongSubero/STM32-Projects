@@ -1,0 +1,5 @@
+main.c:119:6:SystemClock_Config	80	static
+main.c:68:5:main	48	static
+main.c:226:6:TIM3_UP_IRQHandler	8	static
+main.c:230:6:HAL_TIM_PeriodElapsedCallback	8	static
+main.c:242:6:_Error_Handler	0	static

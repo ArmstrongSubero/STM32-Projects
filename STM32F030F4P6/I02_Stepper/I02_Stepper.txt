@@ -1,0 +1,49 @@
+Configuration	I02_Stepper
+STM32CubeMX 	4.22.0
+Date	01/28/2018
+MCU	STM32F030F4Px
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+SYS	Serial_Wire	SYS_SWCLK	PA14
+SYS	Serial_Wire	SYS_SWDIO	PA13
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+10	PA4	GPIO_Output	
+11	PA5	GPIO_Output	
+12	PA6	GPIO_Output	
+13	PA7	GPIO_Output	
+19	PA13	SYS_SWDIO	
+20	PA14	SYS_SWCLK	
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : I02_Stepper
+Project Folder : C:\Users\armst\Desktop\STM32\STM32F030F4P6\GCC\I02_Stepper
+Toolchain / IDE : TrueSTUDIO
+Firmware Package Name and Version : STM32Cube FW_F0 V1.8.0
+
+
+Code Generation Settings : 
+STM32Cube Firmware Library Package : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : No
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : Balanced Size/Speed
+
+
+
+
+
+
