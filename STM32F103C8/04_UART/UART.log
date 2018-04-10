@@ -1,0 +1,12 @@
+0	1	mikroCARM.exe -MSF -DBG -pSTM32F103C8 -BIN -LHF -DL -SSA -O11111115 -fo72 -N"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\04_UART\UART.mcpar" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Uses\ST M3\" -SP"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\04_UART\" -IP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Uses\ST M3\" -IP"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\04_UART\" "UART.c" "__Lib_Math.emcl" "__Lib_MathDouble.emcl" "__Lib_Delays.emcl" "__Lib_System_101_102_103.emcl" "__Lib_GPIO_32F10x_Defs.emcl" "__Lib_GPIO_32F10x.emcl" "__Lib_UART_123_45.emcl"	 
+diagnostics: 0	122	Compilation Started	UART.c
+diagnostics: 34	123	Compiled Successfully	UART.c
+hint: 18	1164	Variable 'ch' has been eliminated by optimizer	UART.c
+diagnostics: 0	127	All files Compiled in 110 ms	 
+hint: 0	1144	Used RX: 16 (100%)   Free RX: 0 (0%)	Used RX: 16 (100%)   Free RX: 0 (0%)
+hint: 0	1144	Static RAM (bytes): 30   Dynamic RAM (bytes): 20445	Static RAM (bytes): 30   Dynamic RAM (bytes): 20445
+hint: 0	1144	Used ROM (bytes): 3214 (5%)  Free ROM (bytes): 62322 (95%)	Used ROM (bytes): 3214 (5%)  Free ROM (bytes): 62322 (95%)
+diagnostics: 0	125	Project Linked Successfully	UART.mcpar
+diagnostics: 0	128	Linked in 203 ms	 
+diagnostics: 0	129	Project 'UART.mcpar' completed: 406 ms	 
+diagnostics: 0	103	Finished successfully: 26 Mar 2018, 21:45:36	UART.mcpar
