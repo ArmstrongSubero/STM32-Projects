@@ -1,0 +1,24 @@
+main
+	__FillZeros
+	ADC_Set_Input_Channel
+		GPIO_Analog_Input
+			GPIO_Config
+				GPIO_Clk_Enable
+	ADC1_Init
+		ADCx_Init
+	UART1_Init_Advanced
+		UARTx_Init_Advanced
+			RCC_GetClocksFrequency
+				Get_Fosc_kHz
+			GPIO_Alternate_Function_Enable
+				GPIO_Configure_Pin
+					GPIO_Config
+	ADC1_Get_Sample
+		ADCx_Get_Sample
+			Delay_1us
+	WordToStr
+	UART1_Write_Text
+		UARTx_Write_Text
+			UARTx_Write
+	UART1_Write
+		UARTx_Write

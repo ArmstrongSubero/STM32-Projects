@@ -1,0 +1,13 @@
+0	1	mikroCARM.exe -MSF -DBG -pSTM32F103C8 -BIN -LHF -DL -SSA -O11111115 -fo72 -N"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\04_ADC\ADC.mcpar" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Defs\" -SP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Uses\ST M3\" -SP"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\04_ADC\" -IP"C:\Users\Public\Documents\Mikroelektronika\mikroC PRO for ARM\Uses\TI M3\" -IP"C:\Users\armst\Desktop\STM32F103C8T6\MikroC\04_ADC\" "ADC.c" "__Lib_Math.emcl" "__Lib_MathDouble.emcl" "__Lib_Delays.emcl" "__Lib_System_101_102_103.emcl" "__Lib_GPIO_32F10x_Defs.emcl" "__Lib_GPIO_32F10x.emcl" "__Lib_CString.emcl" "__Lib_Conversions.emcl" "__Lib_ADC_12_32F10x_10ch.emcl" "__Lib_UART_123_45.emcl"	 
+diagnostics: 0	122	Compilation Started	ADC.c
+warning: 15	1505	Suspicious pointer conversion	ADC.c
+warning: 16	1505	Suspicious pointer conversion	ADC.c
+diagnostics: 21	123	Compiled Successfully	ADC.c
+diagnostics: 0	127	All files Compiled in 469 ms	 
+hint: 0	1144	Used RX: 16 (100%)   Free RX: 0 (0%)	Used RX: 16 (100%)   Free RX: 0 (0%)
+hint: 0	1144	Static RAM (bytes): 58   Dynamic RAM (bytes): 20417	Static RAM (bytes): 58   Dynamic RAM (bytes): 20417
+hint: 0	1144	Used ROM (bytes): 3876 (6%)  Free ROM (bytes): 61660 (94%)	Used ROM (bytes): 3876 (6%)  Free ROM (bytes): 61660 (94%)
+diagnostics: 0	125	Project Linked Successfully	ADC.mcpar
+diagnostics: 0	128	Linked in 234 ms	 
+diagnostics: 0	129	Project 'ADC.mcpar' completed: 797 ms	 
+diagnostics: 0	103	Finished successfully: 07 Dec 2017, 16:58:50	ADC.mcpar

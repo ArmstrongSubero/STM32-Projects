@@ -1,0 +1,8 @@
+[PROJECTS]
+Count=4
+Project0=..\..\..\..\..\mikroC PRO for ARM\Examples\ST\Internal MCU modules\STM32F107VC\Timer2 Interrupt\Timer2 Interrupt.mcpar
+Project1=..\02_Timer1\timer1.mcpar
+Project2=..\03_Uart\UART.mcpar
+Project3=ADC.mcpar
+[ActiveProject]
+Index=3
