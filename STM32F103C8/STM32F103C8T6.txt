@@ -1,0 +1,1 @@
+These are projects written in MikroC for ARM, projects done in GCC are in the GCC folder
