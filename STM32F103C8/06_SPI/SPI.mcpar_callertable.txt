@@ -1,0 +1,14 @@
+main
+	__FillZeros
+	initMain
+		SPI1_Init_Advanced
+			GPIO_Alternate_Function_Enable
+				GPIO_Configure_Pin
+					GPIO_Config
+						GPIO_Clk_Enable
+			SPIx_Init_Advanced
+	GPIO_Digital_Output
+		GPIO_Config
+	digiPot_Write
+		SPI1_Write
+			SPIx_Read
