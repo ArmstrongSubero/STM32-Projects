@@ -1,0 +1,429 @@
+Version:0.9
+StartHTML:0000000105
+EndHTML:0000076374
+StartFragment:0000001499
+EndFragment:0000076358
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>mikroIDE</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="generator" content="SynEdit HTML exporter" />
+<style type="text/css">
+<!--
+body { color: #000000; background-color: #FFFFFF; }
+body { font-family: Courier New; font-size: 14pt; }
+.cpp1-activecomment { color: #3399FF; font-style: italic; text-decoration: underline; }
+.cpp1-assembler { color: #FF0000; }
+.cpp1-binary { color: #800000; }
+.cpp1-character { color: #808000; }
+.cpp1-comment { color: #008000; font-style: italic; }
+.cpp1-float { color: #800000; }
+.cpp1-hexadecimal { color: #008000; }
+.cpp1-identifier { color: #000000; }
+.cpp1-illegalchar { color: #FF0000; }
+.cpp1-imagelink { color: #800080; font-style: italic; text-decoration: underline; }
+.cpp1-number { color: #008000; }
+.cpp1-octal { color: #0000FF; }
+.cpp1-preprocessor { color: #8000FF; font-style: italic; }
+.cpp1-reservedword { color: #000000; font-weight: bold; }
+.cpp1-space { color: #F0F0F0; }
+.cpp1-string { color: #0000FF; }
+.cpp1-symbol { color: #000000; }
+.cpp1-weblink { color: #3399FF; font-style: italic; text-decoration: underline; }
+-->
+</style>
+</head>
+<body>
+<!--StartFragment--><pre><code><span class="cpp1-comment">/*
+&nbsp;*&nbsp;File:&nbsp;MPU6050.c
+&nbsp;*&nbsp;Author:&nbsp;Armstrong&nbsp;Subero
+&nbsp;*&nbsp;uC:&nbsp;STM32F103C8T6&nbsp;w/PLL&nbsp;OSC&nbsp;@&nbsp;72&nbsp;MHz,&nbsp;3.3v
+&nbsp;*&nbsp;Program:&nbsp;I22_MPU6050
+&nbsp;*&nbsp;Compiler:&nbsp;MikroC&nbsp;Pro&nbsp;v6.0.0
+&nbsp;*&nbsp;Program&nbsp;Version:&nbsp;1.0
+&nbsp;*
+&nbsp;*&nbsp;Program&nbsp;Description:&nbsp;This&nbsp;Program&nbsp;Allows&nbsp;STM32F103C8T6&nbsp;to&nbsp;be&nbsp;interfaced&nbsp;with
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;MPU6050&nbsp;and&nbsp;reads&nbsp;the&nbsp;IMU&nbsp;and&nbsp;performs&nbsp;calculations
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;using&nbsp;the&nbsp;Madgwick&nbsp;filter&nbsp;to&nbsp;produce&nbsp;unit&nbsp;quaternion
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;values&nbsp;that&nbsp;can&nbsp;be&nbsp;used&nbsp;to&nbsp;determine&nbsp;spatial&nbsp;orientation
+&nbsp;*
+&nbsp;*&nbsp;Hardware&nbsp;Description:&nbsp;A&nbsp;MPU6050&nbsp;is&nbsp;connected&nbsp;to&nbsp;the&nbsp;I2C&nbsp;bus&nbsp;and&nbsp;a&nbsp;CP2104&nbsp;is
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;connected&nbsp;to&nbsp;UART1
+&nbsp;*
+&nbsp;*&nbsp;Created&nbsp;April&nbsp;13th,&nbsp;2018,&nbsp;1:27&nbsp;AM
+&nbsp;*/
+
+</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">/******************************************************************************
+&nbsp;*&nbsp;Includes&nbsp;and&nbsp;Defines
+&nbsp;******************************************************************************/
+</span><span class="cpp1-preprocessor">#include&nbsp;&quot;stdbool.h&quot;
+#include&nbsp;&lt;built_in.h&gt;
+#include&nbsp;&lt;stdio.h&gt;
+#include&nbsp;&lt;stdlib.h&gt;
+#include&nbsp;&quot;MPU6050.h&quot;
+#include&nbsp;&quot;MadgwickAHRS.h&quot;
+
+</span><span class="cpp1-comment">//&nbsp;Volatile&nbsp;Variables
+</span><span class="cpp1-reservedword">volatile</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_XOUT,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_YOUT,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_ZOUT;
+</span><span class="cpp1-reservedword">volatile</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT;
+
+</span><span class="cpp1-comment">//&nbsp;Global&nbsp;variables
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">acc_x;
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">acc_y;
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">acc_z;
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_x;
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_y;
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_z;
+
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">info;
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">buf[</span><span class="cpp1-number">25</span><span class="cpp1-symbol">];
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">cal_var</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_x_offset;
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_y_offset;
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_z_offset;
+
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_x_out[</span><span class="cpp1-number">10</span><span class="cpp1-symbol">];
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_y_out[</span><span class="cpp1-number">10</span><span class="cpp1-symbol">];
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_z_out[</span><span class="cpp1-number">10</span><span class="cpp1-symbol">];
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">accel_x_out[</span><span class="cpp1-number">10</span><span class="cpp1-symbol">];
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">accel_y_out[</span><span class="cpp1-number">10</span><span class="cpp1-symbol">];
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">accel_z_out[</span><span class="cpp1-number">10</span><span class="cpp1-symbol">];
+
+</span><span class="cpp1-comment">//&nbsp;quaternion&nbsp;values
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">q0_t[</span><span class="cpp1-number">10</span><span class="cpp1-symbol">];
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">q1_t[</span><span class="cpp1-number">10</span><span class="cpp1-symbol">];
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">q2_t[</span><span class="cpp1-number">10</span><span class="cpp1-symbol">];
+</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">q3_t[</span><span class="cpp1-number">10</span><span class="cpp1-symbol">];
+
+
+</span><span class="cpp1-comment">//&nbsp;Writes&nbsp;to&nbsp;the&nbsp;IMU&nbsp;via&nbsp;I2C1
+</span><span class="cpp1-reservedword">void</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Write(</span><span class="cpp1-reservedword">unsigned</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">addr,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">raddr,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">rdata)
+{
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">buf[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">raddr;</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;register&nbsp;address
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">buf[</span><span class="cpp1-number">1</span><span class="cpp1-symbol">]</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">rdata;</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;register&nbsp;data
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">I2C1_Start();</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;issue&nbsp;I2C&nbsp;start&nbsp;signal
+</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">I2C1_Write(addr,buf,</span><span class="cpp1-number">2</span><span class="cpp1-symbol">,END_MODE_STOP);</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;write&nbsp;data&nbsp;via&nbsp;I2C&nbsp;bus
+</span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-comment">//&nbsp;Test&nbsp;to&nbsp;ensure&nbsp;MP6050&nbsp;is&nbsp;connected
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Test(</span><span class="cpp1-reservedword">void</span><span class="cpp1-symbol">)
+{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">buf[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_WHO_AM_I;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">I2C1_Start();
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">I2C1_Write(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">buf,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">END_MODE_RESTART);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">I2C1_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">buf,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">END_MODE_STOP);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">if</span><span class="cpp1-symbol">(buf[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">==</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-hexadecimal">0x68</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">1</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+}
+
+</span><span class="cpp1-comment">//&nbsp;Read&nbsp;&nbsp;the&nbsp;IMU&nbsp;via&nbsp;I2C1
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(</span><span class="cpp1-reservedword">unsigned</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-reservedword">short</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">addr,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">raddr)
+{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">buf[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">]</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">raddr;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">I2C1_Start();
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">I2C1_Write(addr,</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">buf,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">END_MODE_RESTART);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">I2C1_Read</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(addr,</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">buf,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">1</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">END_MODE_STOP);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">buf[</span><span class="cpp1-number">0</span><span class="cpp1-symbol">];
+}
+
+</span><span class="cpp1-comment">//&nbsp;Initializes&nbsp;the&nbsp;IMU
+</span><span class="cpp1-reservedword">void</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Init(</span><span class="cpp1-reservedword">void</span><span class="cpp1-symbol">)
+{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Wakeup&nbsp;from&nbsp;sleep
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_Write(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_PWR_MGMT_1,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-hexadecimal">0x00</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;sample&nbsp;rate&nbsp;=&nbsp;8kHz&nbsp;/&nbsp;1&nbsp;+&nbsp;109&nbsp;=&nbsp;72.7Hz
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_Write(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_SMPLRT_DIV,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">109</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Write&nbsp;Accelerometer&nbsp;to&nbsp;+\-&nbsp;4g
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_Write(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_CONFIG,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-hexadecimal">0x00</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;gyro&nbsp;scale&nbsp;of&nbsp;2000&nbsp;degrees/s
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_Write(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_GYRO_CONFIG,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-hexadecimal">0x18</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Disable&nbsp;Frame&nbsp;Sync,&nbsp;Set&nbsp;Digital&nbsp;Low&nbsp;pass&nbsp;filter&nbsp;to&nbsp;256Hz&nbsp;DLPF
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_Write(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_CONFIG,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-hexadecimal">0x00</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Disable&nbsp;sensor&nbsp;output&nbsp;to&nbsp;FIFO&nbsp;buffer
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_Write(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_FIFO_EN,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-hexadecimal">0x00</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;AUX&nbsp;I2C&nbsp;setup,&nbsp;single&nbsp;master&nbsp;control
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_Write(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_I2C_MST_CTRL,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-hexadecimal">0x00</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Setup&nbsp;INT&nbsp;pin&nbsp;and&nbsp;AUX&nbsp;I2C&nbsp;pass&nbsp;through
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_Write(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_INT_PIN_CFG,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-hexadecimal">0x00</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Enable&nbsp;data&nbsp;ready&nbsp;interrupt
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_Write(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_INT_ENABLE,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-hexadecimal">0x00</span><span class="cpp1-symbol">);
+}
+
+</span><span class="cpp1-comment">//&nbsp;Read&nbsp;the&nbsp;raw&nbsp;accel&nbsp;vlaue&nbsp;from&nbsp;the&nbsp;IMU
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Accel_Raw(</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">axis)
+{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//Variables&nbsp;for&nbsp;high&nbsp;and&nbsp;low&nbsp;accel&nbsp;values
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_H,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_L,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_H;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_L,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_H,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_L;
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Read&nbsp;accelerometer&nbsp;values&nbsp;out&nbsp;from&nbsp;H&nbsp;and&nbsp;L&nbsp;registers
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_XOUT_H);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_XOUT_L);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_YOUT_H);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_YOUT_L);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_ZOUT_H);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_ZOUT_L);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Convert&nbsp;received&nbsp;data
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_H&lt;&lt;</span><span class="cpp1-number">8</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">|</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_H&lt;&lt;</span><span class="cpp1-number">8</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">|</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_H&lt;&lt;</span><span class="cpp1-number">8</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">|</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Return&nbsp;value&nbsp;to&nbsp;user&nbsp;based&nbsp;on&nbsp;reqiested&nbsp;axis
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">switch</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(axis)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">case</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-character">'X'</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT;</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;&nbsp;Accel&nbsp;X&nbsp;Axis
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">case</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-character">'Y'</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT;</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Accel&nbsp;Y&nbsp;Axis
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">case</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-character">'Z'</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT;</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;&nbsp;Accel&nbsp;Z&nbsp;Axis
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">default</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+}
+
+
+</span><span class="cpp1-comment">//&nbsp;Read&nbsp;the&nbsp;accel&nbsp;value&nbsp;and&nbsp;convert&nbsp;to&nbsp;G's
+</span><span class="cpp1-reservedword">double</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read_Accel(</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">axis)
+{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Variables&nbsp;for&nbsp;high&nbsp;and&nbsp;low&nbsp;accel&nbsp;values
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_H,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_L,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_H;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_L,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_H,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_L;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">float</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">GFORCEX;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">float</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">GFORCEY;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">float</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">GFORCEZ;
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Read&nbsp;accelerometer&nbsp;values&nbsp;out&nbsp;from&nbsp;H&nbsp;and&nbsp;L&nbsp;registers
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_XOUT_H);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_XOUT_L);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_YOUT_H);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_YOUT_L);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_ZOUT_H);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_ACCEL_ZOUT_L);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Convert&nbsp;received&nbsp;data
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_H&lt;&lt;</span><span class="cpp1-number">8</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">|</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_XOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_H&lt;&lt;</span><span class="cpp1-number">8</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">|</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_YOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_H&lt;&lt;</span><span class="cpp1-number">8</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">|</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">ACCEL_ZOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Calculate&nbsp;G-Force&nbsp;Data
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GFORCEX</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(ACCEL_XOUT</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">/</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">G_CALC_VAL);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GFORCEY</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(ACCEL_YOUT</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">/</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">G_CALC_VAL);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GFORCEZ</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(ACCEL_ZOUT</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">/</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">G_CALC_VAL);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Return&nbsp;G's&nbsp;value&nbsp;to&nbsp;user
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">switch</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(axis)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">case</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-character">'X'</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GFORCEX;</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;&nbsp;Gforce&nbsp;X&nbsp;Axis
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">case</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-character">'Y'</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GFORCEY;</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Gforce&nbsp;Y&nbsp;Axis
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">case</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-character">'Z'</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GFORCEZ;</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;&nbsp;Gforce&nbsp;Z&nbsp;Axis
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">default</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+}
+
+</span><span class="cpp1-comment">//&nbsp;Read&nbsp;the&nbsp;raw&nbsp;gyro&nbsp;data&nbsp;from&nbsp;the&nbsp;IMU
+</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Gyro_Raw(</span><span class="cpp1-reservedword">char</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">axis)
+{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_XOUT_H,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_XOUT_L;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_YOUT_H,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_YOUT_L;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">int</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_ZOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">,GYRO_ZOUT_L;
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">/*&nbsp;Read&nbsp;data&nbsp;from&nbsp;gyroscope&nbsp;*/
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_XOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_GYRO_XOUT_H);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_XOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_GYRO_XOUT_L);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_YOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_GYRO_YOUT_H);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_YOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_GYRO_YOUT_L);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_ZOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_GYRO_ZOUT_H);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_ZOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read(MPU6050_ADDRESS,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_RA_GYRO_ZOUT_L);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Convert&nbsp;received&nbsp;data
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_XOUT</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_XOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">&lt;&lt;</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">8</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">|</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_XOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_YOUT</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_YOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">&lt;&lt;</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">8</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">|</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_YOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">GYRO_ZOUT</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_ZOUT_H</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">&lt;&lt;</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">8</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">|</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_ZOUT_L</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Return&nbsp;value&nbsp;to&nbsp;user
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">switch</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(axis)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">case</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-character">'X'</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_XOUT;</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Gyro&nbsp;X&nbsp;Axis
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">case</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-character">'Y'</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_YOUT;</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;&nbsp;Gyro&nbsp;Y&nbsp;Axis
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">case</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-character">'Z'</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">GYRO_ZOUT;</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;&nbsp;Gyro&nbsp;Z&nbsp;Axis
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">break</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">default</span><span class="cpp1-symbol">:
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">return</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">0</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+}
+
+
+</span><span class="cpp1-comment">//&nbsp;Main
+</span><span class="cpp1-reservedword">void</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">main()</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">{
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Initialize&nbsp;the&nbsp;module&nbsp;at&nbsp;230400&nbsp;baud&nbsp;with&nbsp;no&nbsp;parity&nbsp;bit,&nbsp;one&nbsp;stop&nbsp;bit&nbsp;at&nbsp;UART1
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Init(</span><span class="cpp1-number">230400</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Wait&nbsp;for&nbsp;UART&nbsp;module&nbsp;to&nbsp;stabilize
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">Delay_ms(</span><span class="cpp1-number">100</span><span class="cpp1-symbol">);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//Initialize&nbsp;the&nbsp;MPU6050&nbsp;module&nbsp;with&nbsp;400Kbps&nbsp;speed&nbsp;on&nbsp;PORTB
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">I2C1_Init_Advanced(</span><span class="cpp1-number">400000</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">&amp;_GPIO_MODULE_I2C1_PB67);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">Delay_ms(</span><span class="cpp1-number">1000</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Let&nbsp;us&nbsp;know&nbsp;everything&nbsp;is&nbsp;OK
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;Pre&nbsp;Init&nbsp;Okay&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write(</span><span class="cpp1-number">13</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Initialize&nbsp;the&nbsp;MPU6050&nbsp;module
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">MPU6050_Init();
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">info</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Test();
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">if</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(info</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">==</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;MPU6050&nbsp;OK&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write(</span><span class="cpp1-hexadecimal">0x0A</span><span class="cpp1-symbol">);</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//Line&nbsp;Feed&nbsp;LF
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write(</span><span class="cpp1-hexadecimal">0x0D</span><span class="cpp1-symbol">);</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//Return&nbsp;Car&nbsp;CR
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">else
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;MPU6050&nbsp;Failed&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write(</span><span class="cpp1-hexadecimal">0x0A</span><span class="cpp1-symbol">);</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//Line&nbsp;Feed&nbsp;LF
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write(</span><span class="cpp1-hexadecimal">0x0D</span><span class="cpp1-symbol">);</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//Return&nbsp;Car&nbsp;CR
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;give&nbsp;sensor&nbsp;a&nbsp;second&nbsp;to&nbsp;stabilize
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">Delay_ms(</span><span class="cpp1-number">1000</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Calculate&nbsp;gyro&nbsp;offset
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">for</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">(cal_var</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">0</span><span class="cpp1-symbol">;</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">cal_var</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">&lt;=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">64</span><span class="cpp1-symbol">;</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">cal_var++)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_x_offset</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">+=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Gyro_Raw(</span><span class="cpp1-character">'X'</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_y_offset</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">+=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Gyro_Raw(</span><span class="cpp1-character">'Y'</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_z_offset</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">+=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Gyro_Raw(</span><span class="cpp1-character">'Z'</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">Delay_ms(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Determine&nbsp;gyro&nbsp;offset&nbsp;for&nbsp;64&nbsp;read&nbsp;values
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_x_offset</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">/=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">64</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_y_offset</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">/=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">64</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_z_offset</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">/=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-number">64</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-reservedword">while</span><span class="cpp1-symbol">(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">)
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">{
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Read&nbsp;gyro&nbsp;values&nbsp;and&nbsp;convert&nbsp;to&nbsp;Radians&nbsp;per&nbsp;second
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_x</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">(MPU6050_Gyro_Raw(</span><span class="cpp1-character">'X'</span><span class="cpp1-symbol">)</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">-</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_x_offset)</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">/</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-float">939.650784f</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_y</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">(MPU6050_Gyro_Raw(</span><span class="cpp1-character">'Y'</span><span class="cpp1-symbol">)</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">-</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_y_offset)</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">/</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-float">939.650784f</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">gyro_z</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">(MPU6050_Gyro_Raw(</span><span class="cpp1-character">'Z'</span><span class="cpp1-symbol">)</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">-</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_z_offset)</span><span class="cpp1-space">&nbsp;&nbsp;</span><span class="cpp1-symbol">/</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-float">939.650784f</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Read&nbsp;accel&nbsp;values&nbsp;&nbsp;and&nbsp;convert&nbsp;relative&nbsp;to&nbsp;1G
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">acc_x</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read_Accel(</span><span class="cpp1-character">'X'</span><span class="cpp1-symbol">)</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">/</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-float">2.0f</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">acc_y</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read_Accel(</span><span class="cpp1-character">'Y'</span><span class="cpp1-symbol">)</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">/</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-float">2.0f</span><span class="cpp1-symbol">;
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">acc_z</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">=</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">MPU6050_Read_Accel(</span><span class="cpp1-character">'Z'</span><span class="cpp1-symbol">)</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-symbol">/</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-float">2.0f</span><span class="cpp1-symbol">;
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//////////////////////////////
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Display&nbsp;Accel&nbsp;Values
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">///////////////////////////////
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;&nbsp;&nbsp;AccelX:&nbsp;&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sprintf(accel_x_out,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;%7.2f&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">acc_x);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(accel_x_out);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;&nbsp;&nbsp;AccelY:&nbsp;&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sprintf(accel_y_out,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;%7.2f&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">acc_y);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(accel_y_out);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;&nbsp;&nbsp;AccelZ:&nbsp;&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sprintf(accel_z_out,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;%7.2f&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">acc_z);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(accel_z_out);
+
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write(</span><span class="cpp1-hexadecimal">0x0A</span><span class="cpp1-symbol">);</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//Line&nbsp;Feed&nbsp;LF
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write(</span><span class="cpp1-hexadecimal">0x0D</span><span class="cpp1-symbol">);</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//Return&nbsp;Car&nbsp;CR
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">/////////////////////////////////
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Display&nbsp;Gyro&nbsp;Values
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">/////////////////////////////////
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;&nbsp;&nbsp;GyroX:&nbsp;&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sprintf(gyro_x_out,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;%7.2f&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_x);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(gyro_x_out);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;&nbsp;&nbsp;GyroY:&nbsp;&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sprintf(gyro_y_out,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;%7.2f&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_y);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(gyro_y_out);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;&nbsp;&nbsp;GyroZ:&nbsp;&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sprintf(gyro_z_out,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;%7.2f&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_z);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(gyro_z_out);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write(</span><span class="cpp1-hexadecimal">0x0A</span><span class="cpp1-symbol">);</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//Line&nbsp;Feed&nbsp;LF
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write(</span><span class="cpp1-hexadecimal">0x0D</span><span class="cpp1-symbol">);</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//Return&nbsp;Car&nbsp;CR
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">/////////////////////////////////////
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Apply&nbsp;Madgwick&nbsp;filter&nbsp;on&nbsp;values
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">////////////////////////////////////
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">MadgwickAHRSupdateIMU(gyro_x,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_y,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">gyro_z,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">acc_x,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">acc_y,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">acc_z);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">///////////////////////////////////
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//&nbsp;Send&nbsp;unit&nbsp;quaternion&nbsp;values
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-comment">//////////////////////////////////
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;&nbsp;&nbsp;Q0:&nbsp;&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sprintf(q0_t,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;%7.2f&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">q0);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(q0_t);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;&nbsp;&nbsp;Q1:&nbsp;&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sprintf(q1_t,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;%7.2f&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">q1);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(q1_t);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;&nbsp;&nbsp;Q2:&nbsp;&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sprintf(q2_t,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;%7.2f&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">q2);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(q2_t);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(</span><span class="cpp1-string">&quot;&nbsp;&nbsp;Q3:&nbsp;&quot;</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">sprintf(q3_t,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-string">&quot;%7.2f&quot;</span><span class="cpp1-symbol">,</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-identifier">q3);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write_Text(q3_t);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write(</span><span class="cpp1-hexadecimal">0x0A</span><span class="cpp1-symbol">);</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//Line&nbsp;Feed&nbsp;LF
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">UART1_Write(</span><span class="cpp1-hexadecimal">0x0D</span><span class="cpp1-symbol">);</span><span class="cpp1-space">&nbsp;</span><span class="cpp1-comment">//Return&nbsp;Car&nbsp;CR
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="cpp1-identifier">Delay_ms(</span><span class="cpp1-number">1</span><span class="cpp1-symbol">);
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;</span><span class="cpp1-symbol">}
+</span><span class="cpp1-space">&nbsp;&nbsp;&nbsp;&nbsp;
+</span><span class="cpp1-symbol">}
+</span></code></pre><!--EndFragment--></body>
+</html>
