@@ -101,7 +101,7 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 
-	  // Toggle GPIO4 at 1000 MHz
+	  // Toggle GPIO4 at 1Hz
 	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
 	  HAL_Delay(1000);
 
